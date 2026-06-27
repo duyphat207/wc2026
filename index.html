@@ -34,15 +34,17 @@
         .glow-gold { box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
         .tab-transition { transition: all 0.3s ease-in-out; }
         .bracket-col { display: flex; flex-direction: column; justify-content: space-around; height: 1050px; }
-        /* Tab Knockout: phá khung max-w-7xl để tràn full width màn hình */
+        /* Tab Knockout: phá khung max-w-7xl để tràn full width màn hình (bulletproof) */
         #content-knockout-bracket {
+            position: relative;
+            left: 50%;
+            right: 50%;
             width: 100vw;
             max-width: 100vw;
-            position: relative;
-            margin-left: calc(50% - 50vw);
-            margin-right: calc(50% - 50vw);
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
         }
         .stat-input {
             width: 38px; background: #0B0F19; border: 1px solid #374151; border-radius: 6px;
@@ -189,74 +191,68 @@
                     </h3>
                     <p class="text-xs text-gray-400 mt-1">Bấm vào một đội để cho họ đi tiếp. Hai nhánh Trái – Phải hội tụ về Chung Kết ở trung tâm.</p>
                 </div>
-                <div class="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0">
-                    <button onclick="scrollToRound('left-r32-section')" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-semibold rounded-lg text-gray-200 transition-all flex-shrink-0">
-                        <i class="fa-solid fa-chevron-left mr-1"></i> Nhánh Trái
-                    </button>
-                    <button onclick="scrollToRound('center-final-section')" class="px-3 py-1.5 bg-gold/20 hover:bg-gold/30 text-xs font-bold rounded-lg text-gold border border-gold/30 transition-all flex-shrink-0">
-                         Chung Kết
-                    </button>
-                    <button onclick="scrollToRound('right-r32-section')" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-semibold rounded-lg text-gray-200 transition-all flex-shrink-0">
-                        Nhánh Phải <i class="fa-solid fa-chevron-right ml-1"></i>
-                    </button>
+                <div class="text-[11px] text-gray-500 italic flex items-center gap-1.5">
+                    <i class="fa-solid fa-up-right-and-down-left-from-center"></i> Tự co giãn vừa màn hình
                 </div>
             </div>
 
-            <div class="overflow-x-auto pb-8 pt-4">
-                <div class="w-full flex items-stretch gap-2 relative justify-between">
-                    <div class="flex items-stretch gap-2 flex-1">
-                        <div id="left-r32-section" class="flex-1 min-w-[150px]">
-                            <h4 class="text-center font-extrabold text-xs text-gray-400 bg-gray-900/60 py-2 rounded-xl border border-gray-800/80 mb-3 uppercase tracking-wider">Vòng 1/32 (Trái)</h4>
-                            <div id="left-r32-container" class="bracket-col"></div>
+            <div id="bracket-viewport" class="pb-8 pt-4" style="overflow:hidden; position:relative;">
+                <div id="bracket-scaler" class="w-max" style="transform-origin: top left;">
+                    <div class="flex items-stretch gap-2">
+                        <div class="flex items-stretch gap-2">
+                            <div id="left-r32-section" class="w-[180px] flex-shrink-0">
+                                <h4 class="text-center font-extrabold text-xs text-gray-400 bg-gray-900/60 py-2 rounded-xl border border-gray-800/80 mb-3 uppercase tracking-wider">Vòng 1/32 (Trái)</h4>
+                                <div id="left-r32-container" class="bracket-col"></div>
+                            </div>
+                            <div id="left-r16-section" class="w-[180px] flex-shrink-0">
+                                <h4 class="text-center font-extrabold text-xs text-blue-400 bg-blue-950/40 py-2 rounded-xl border border-blue-900/30 mb-3 uppercase tracking-wider">Vòng 1/16 (Trái)</h4>
+                                <div id="left-r16-container" class="bracket-col"></div>
+                            </div>
+                            <div id="left-qf-section" class="w-[180px] flex-shrink-0">
+                                <h4 class="text-center font-extrabold text-xs text-indigo-400 bg-indigo-950/40 py-2 rounded-xl border border-indigo-900/30 mb-3 uppercase tracking-wider">Tứ Kết (Trái)</h4>
+                                <div id="left-qf-container" class="bracket-col"></div>
+                            </div>
+                            <div id="left-sf-section" class="w-[180px] flex-shrink-0">
+                                <h4 class="text-center font-extrabold text-xs text-purple-400 bg-purple-950/40 py-2 rounded-xl border border-purple-900/30 mb-3 uppercase tracking-wider">Bán Kết (Trái)</h4>
+                                <div id="left-sf-container" class="bracket-col"></div>
+                            </div>
                         </div>
-                        <div id="left-r16-section" class="flex-1 min-w-[150px]">
-                            <h4 class="text-center font-extrabold text-xs text-blue-400 bg-blue-950/40 py-2 rounded-xl border border-blue-900/30 mb-3 uppercase tracking-wider">Vòng 1/16 (Trái)</h4>
-                            <div id="left-r16-container" class="bracket-col"></div>
-                        </div>
-                        <div id="left-qf-section" class="flex-1 min-w-[150px]">
-                            <h4 class="text-center font-extrabold text-xs text-indigo-400 bg-indigo-950/40 py-2 rounded-xl border border-indigo-900/30 mb-3 uppercase tracking-wider">Tứ Kết (Trái)</h4>
-                            <div id="left-qf-container" class="bracket-col"></div>
-                        </div>
-                        <div id="left-sf-section" class="flex-1 min-w-[150px]">
-                            <h4 class="text-center font-extrabold text-xs text-purple-400 bg-purple-950/40 py-2 rounded-xl border border-purple-900/30 mb-3 uppercase tracking-wider">Bán Kết (Trái)</h4>
-                            <div id="left-sf-container" class="bracket-col"></div>
-                        </div>
-                    </div>
 
-                    <div id="center-final-section" class="w-[220px] flex-shrink-0 flex flex-col justify-center gap-6 bg-gradient-to-b from-gold/5 via-panelbg/20 to-transparent p-3 rounded-3xl border border-gold/15">
-                        <h4 class="text-center font-extrabold text-xs text-gold bg-gold/10 py-2 rounded-xl border border-gold/20 uppercase tracking-widest">Trung Tâm</h4>
-                        <div class="space-y-2">
-                            <span class="block text-center text-xs font-black text-gold tracking-widest uppercase"><i class="fa-solid fa-crown mr-1"></i> Chung Kết</span>
-                            <div id="final-match-container"></div>
+                        <div id="center-final-section" class="w-[210px] flex-shrink-0 flex flex-col justify-center gap-6 bg-gradient-to-b from-gold/5 via-panelbg/20 to-transparent p-3 rounded-3xl border border-gold/15">
+                            <h4 class="text-center font-extrabold text-xs text-gold bg-gold/10 py-2 rounded-xl border border-gold/20 uppercase tracking-widest">Trung Tâm</h4>
+                            <div class="space-y-2">
+                                <span class="block text-center text-xs font-black text-gold tracking-widest uppercase"><i class="fa-solid fa-crown mr-1"></i> Chung Kết</span>
+                                <div id="final-match-container"></div>
+                            </div>
+                            <div class="bg-panelbg/80 rounded-2xl border border-gold/30 p-4 flex flex-col items-center justify-center text-center glow-gold relative overflow-hidden">
+                                <i class="fa-solid fa-trophy text-4xl text-gold mb-2 animate-bounce-slow drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]"></i>
+                                <h5 class="text-[10px] font-extrabold text-gold tracking-widest uppercase mb-1">Nhà Vô Địch</h5>
+                                <div id="champion-display" class="font-black text-base text-white py-1 uppercase tracking-wide">Chưa Xác Định</div>
+                                <div id="champion-flag" class="text-4xl mt-1 animate-pulse-slow">🏆</div>
+                            </div>
+                            <div class="space-y-2 border-t border-gray-800 pt-4">
+                                <span class="block text-center text-xs font-bold text-gray-400 tracking-widest uppercase">Tranh Hạng Ba</span>
+                                <div id="third-place-match-container"></div>
+                            </div>
                         </div>
-                        <div class="bg-panelbg/80 rounded-2xl border border-gold/30 p-4 flex flex-col items-center justify-center text-center glow-gold relative overflow-hidden">
-                            <i class="fa-solid fa-trophy text-4xl text-gold mb-2 animate-bounce-slow drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]"></i>
-                            <h5 class="text-[10px] font-extrabold text-gold tracking-widest uppercase mb-1">Nhà Vô Địch</h5>
-                            <div id="champion-display" class="font-black text-base text-white py-1 uppercase tracking-wide">Chưa Xác Định</div>
-                            <div id="champion-flag" class="text-4xl mt-1 animate-pulse-slow">🏆</div>
-                        </div>
-                        <div class="space-y-2 border-t border-gray-800 pt-4">
-                            <span class="block text-center text-xs font-bold text-gray-400 tracking-widest uppercase">Tranh Hạng Ba</span>
-                            <div id="third-place-match-container"></div>
-                        </div>
-                    </div>
 
-                    <div class="flex items-stretch gap-2 flex-1">
-                        <div id="right-sf-section" class="flex-1 min-w-[150px]">
-                            <h4 class="text-center font-extrabold text-xs text-purple-400 bg-purple-950/40 py-2 rounded-xl border border-purple-900/30 mb-3 uppercase tracking-wider">Bán Kết (Phải)</h4>
-                            <div id="right-sf-container" class="bracket-col"></div>
-                        </div>
-                        <div id="right-qf-section" class="flex-1 min-w-[150px]">
-                            <h4 class="text-center font-extrabold text-xs text-indigo-400 bg-indigo-950/40 py-2 rounded-xl border border-indigo-900/30 mb-3 uppercase tracking-wider">Tứ Kết (Phải)</h4>
-                            <div id="right-qf-container" class="bracket-col"></div>
-                        </div>
-                        <div id="right-r16-section" class="flex-1 min-w-[150px]">
-                            <h4 class="text-center font-extrabold text-xs text-blue-400 bg-blue-950/40 py-2 rounded-xl border border-blue-900/30 mb-3 uppercase tracking-wider">Vòng 1/16 (Phải)</h4>
-                            <div id="right-r16-container" class="bracket-col"></div>
-                        </div>
-                        <div id="right-r32-section" class="flex-1 min-w-[150px]">
-                            <h4 class="text-center font-extrabold text-xs text-gray-400 bg-gray-900/60 py-2 rounded-xl border border-gray-800/80 mb-3 uppercase tracking-wider">Vòng 1/32 (Phải)</h4>
-                            <div id="right-r32-container" class="bracket-col"></div>
+                        <div class="flex items-stretch gap-2">
+                            <div id="right-sf-section" class="w-[180px] flex-shrink-0">
+                                <h4 class="text-center font-extrabold text-xs text-purple-400 bg-purple-950/40 py-2 rounded-xl border border-purple-900/30 mb-3 uppercase tracking-wider">Bán Kết (Phải)</h4>
+                                <div id="right-sf-container" class="bracket-col"></div>
+                            </div>
+                            <div id="right-qf-section" class="w-[180px] flex-shrink-0">
+                                <h4 class="text-center font-extrabold text-xs text-indigo-400 bg-indigo-950/40 py-2 rounded-xl border border-indigo-900/30 mb-3 uppercase tracking-wider">Tứ Kết (Phải)</h4>
+                                <div id="right-qf-container" class="bracket-col"></div>
+                            </div>
+                            <div id="right-r16-section" class="w-[180px] flex-shrink-0">
+                                <h4 class="text-center font-extrabold text-xs text-blue-400 bg-blue-950/40 py-2 rounded-xl border border-blue-900/30 mb-3 uppercase tracking-wider">Vòng 1/16 (Phải)</h4>
+                                <div id="right-r16-container" class="bracket-col"></div>
+                            </div>
+                            <div id="right-r32-section" class="w-[180px] flex-shrink-0">
+                                <h4 class="text-center font-extrabold text-xs text-gray-400 bg-gray-900/60 py-2 rounded-xl border border-gray-800/80 mb-3 uppercase tracking-wider">Vòng 1/32 (Phải)</h4>
+                                <div id="right-r32-container" class="bracket-col"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -264,9 +260,8 @@
         </div>
     </main>
 
-    <footer class="border-t border-gray-800/80 mt-16 py-8 bg-darkbg/95 text-center text-xs text-gray-500 space-y-2">
-        <p>Bộ mô phỏng World Cup 2026 — dữ liệu nhập tay, tính toán theo luật FIFA.</p>
-        <p>© 2026 World Cup Simulator. Lưu ý: bảng phân nhánh đội hạng 3 cần đối chiếu với sơ đồ chính thức FIFA.</p>
+    <footer class="mt-16 py-6 text-center text-xs text-gray-500 border-t border-gray-800/60">
+        © 2026 <span class="text-gold font-semibold">Nguyễn Duy Phát</span> · Lửa Đỏ thành Man
     </footer>
 
     <div id="toast-wrap"></div>
@@ -706,6 +701,8 @@
                 champDisplay.innerText = "CHƯA XÁC ĐỊNH";
                 champFlag.innerText = "🏆";
             }
+
+            if (typeof scaleBracket === 'function') requestAnimationFrame(scaleBracket);
         }
 
         /* =========================================================================
@@ -934,12 +931,25 @@
                     ? "flex-1 text-center py-3 px-4 rounded-xl text-sm font-bold bg-gold text-darkbg shadow-lg tab-transition whitespace-nowrap"
                     : "flex-1 text-center py-3 px-4 rounded-xl text-sm font-semibold text-gray-400 hover:text-white transition-all duration-300 tab-transition whitespace-nowrap";
             });
+            if (tabId === 'knockout-bracket') requestAnimationFrame(scaleBracket);
         }
 
-        function scrollToRound(sectionId) {
-            const el = document.getElementById(sectionId);
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+        /* Co giãn cây knockout cho vừa đúng chiều ngang màn hình (luôn thấy đủ trái + phải). */
+        function scaleBracket() {
+            const vp = document.getElementById('bracket-viewport');
+            const sc = document.getElementById('bracket-scaler');
+            if (!vp || !sc || vp.clientWidth === 0) return; // tab đang ẩn -> bỏ qua
+            sc.style.transform = 'none';                     // reset để đo khổ gốc
+            const naturalW = sc.scrollWidth;
+            const naturalH = sc.scrollHeight;
+            if (!naturalW) return;
+            const s = vp.clientWidth / naturalW;
+            sc.style.transform = `scale(${s})`;
+            vp.style.height = (naturalH * s) + 'px';
         }
+        window.addEventListener('resize', () => {
+            if (!document.getElementById('content-knockout-bracket').classList.contains('hidden')) scaleBracket();
+        });
 
         function resetAll() {
             knockoutState = buildEmptyKnockout();
