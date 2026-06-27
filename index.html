@@ -34,6 +34,16 @@
         .glow-gold { box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
         .tab-transition { transition: all 0.3s ease-in-out; }
         .bracket-col { display: flex; flex-direction: column; justify-content: space-around; height: 1050px; }
+        /* Tab Knockout: phá khung max-w-7xl để tràn full width màn hình */
+        #content-knockout-bracket {
+            width: 100vw;
+            max-width: 100vw;
+            position: relative;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
         .stat-input {
             width: 38px; background: #0B0F19; border: 1px solid #374151; border-radius: 6px;
             text-align: center; color: #fff; font-size: 12px; padding: 2px 0;
@@ -106,21 +116,15 @@
     <main class="max-w-7xl mx-auto px-4 py-6 relative z-10">
         <div class="bg-gradient-to-r from-blue-950/80 to-purple-950/40 rounded-3xl p-6 md:p-8 border border-blue-900/40 shadow-2xl mb-8 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative">
             <div class="space-y-3 z-10 max-w-2xl">
-                <span class="bg-blue-500/20 text-blue-300 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest border border-blue-500/30">
-                    Manual-first · Bracket Predictor
+                <span class="bg-accentgreen/20 text-accentgreen text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest border border-accentgreen/30">
+                    Live (worldcup26.ir) · Bracket Predictor
                 </span>
                 <h2 class="text-3xl md:text-4xl font-extrabold text-white leading-tight">
                     Mô Phỏng <span class="bg-clip-text text-transparent bg-gradient-to-r from-gold to-yellow-300">FIFA World Cup 2026</span>
                 </h2>
                 <p class="text-gray-300 text-sm md:text-base">
-                    Bấm <span class="text-blue-300 font-bold">Nhập / Sửa Kết Quả</span> để gõ thành tích từng đội (Thắng / Hòa / Thua / Bàn thắng / Bàn thua). Bảng xếp hạng, danh sách đội hạng 3 đi tiếp và toàn bộ nhánh knockout sẽ tự tính theo đúng luật FIFA. Mọi thay đổi được lưu tự động trên trình duyệt.
+                    Trang tự lấy <span class="text-accentgreen font-bold">kết quả vòng bảng live</span> khi mở (nguồn keyless worldcup26.ir). Bảng xếp hạng, đội hạng 3 đi tiếp và nhánh R32 tự tính theo đúng thứ tự FIFA. Bấm <span class="text-accentgreen font-bold">Lấy Live</span> để làm mới, hoặc <span class="text-blue-300 font-bold">Nhập / Sửa Kết Quả</span> để tự nghịch dự đoán. Mọi thao tác được lưu trên trình duyệt.
                 </p>
-            </div>
-            <div class="relative w-36 h-36 flex-shrink-0 flex items-center justify-center">
-                <div class="absolute inset-0 bg-gold/10 rounded-full blur-2xl animate-pulse-slow"></div>
-                <div class="text-gold text-6xl animate-bounce-slow drop-shadow-[0_0_25px_rgba(212,175,55,0.6)]">
-                    <i class="fa-solid fa-futbol"></i>
-                </div>
             </div>
         </div>
 
@@ -133,9 +137,6 @@
             </button>
             <button onclick="switchTab('knockout-bracket')" id="tab-knockout-bracket" class="flex-1 text-center py-3 px-4 rounded-xl text-sm font-semibold text-gray-400 hover:text-white transition-all duration-300 tab-transition whitespace-nowrap">
                 <i class="fa-solid fa-sitemap mr-1.5"></i> Nhánh Knockout
-            </button>
-            <button onclick="switchTab('statistics')" id="tab-statistics" class="flex-1 text-center py-3 px-4 rounded-xl text-sm font-semibold text-gray-400 hover:text-white transition-all duration-300 tab-transition whitespace-nowrap">
-                <i class="fa-solid fa-newspaper mr-1.5"></i> Phân Tích
             </button>
         </div>
 
@@ -202,83 +203,60 @@
             </div>
 
             <div class="overflow-x-auto pb-8 pt-4">
-                <div class="min-w-[2100px] flex items-stretch gap-6 relative px-4 justify-between">
-                    <div class="flex items-stretch gap-6 flex-1 justify-start">
-                        <div id="left-r32-section" class="w-[240px] flex-shrink-0">
+                <div class="w-full flex items-stretch gap-2 relative justify-between">
+                    <div class="flex items-stretch gap-2 flex-1">
+                        <div id="left-r32-section" class="flex-1 min-w-[150px]">
                             <h4 class="text-center font-extrabold text-xs text-gray-400 bg-gray-900/60 py-2 rounded-xl border border-gray-800/80 mb-3 uppercase tracking-wider">Vòng 1/32 (Trái)</h4>
                             <div id="left-r32-container" class="bracket-col"></div>
                         </div>
-                        <div id="left-r16-section" class="w-[240px] flex-shrink-0">
+                        <div id="left-r16-section" class="flex-1 min-w-[150px]">
                             <h4 class="text-center font-extrabold text-xs text-blue-400 bg-blue-950/40 py-2 rounded-xl border border-blue-900/30 mb-3 uppercase tracking-wider">Vòng 1/16 (Trái)</h4>
                             <div id="left-r16-container" class="bracket-col"></div>
                         </div>
-                        <div id="left-qf-section" class="w-[240px] flex-shrink-0">
+                        <div id="left-qf-section" class="flex-1 min-w-[150px]">
                             <h4 class="text-center font-extrabold text-xs text-indigo-400 bg-indigo-950/40 py-2 rounded-xl border border-indigo-900/30 mb-3 uppercase tracking-wider">Tứ Kết (Trái)</h4>
                             <div id="left-qf-container" class="bracket-col"></div>
                         </div>
-                        <div id="left-sf-section" class="w-[240px] flex-shrink-0">
+                        <div id="left-sf-section" class="flex-1 min-w-[150px]">
                             <h4 class="text-center font-extrabold text-xs text-purple-400 bg-purple-950/40 py-2 rounded-xl border border-purple-900/30 mb-3 uppercase tracking-wider">Bán Kết (Trái)</h4>
                             <div id="left-sf-container" class="bracket-col"></div>
                         </div>
                     </div>
 
-                    <div id="center-final-section" class="w-[340px] flex-shrink-0 flex flex-col justify-center gap-8 bg-gradient-to-b from-gold/5 via-panelbg/20 to-transparent p-4 rounded-3xl border border-gold/15">
-                        <h4 class="text-center font-extrabold text-sm text-gold bg-gold/10 py-2 rounded-xl border border-gold/20 mb-2 uppercase tracking-widest">Trung Tâm Hội Tụ</h4>
-                        <div class="space-y-3">
-                            <span class="block text-center text-xs font-black text-gold tracking-widest uppercase"><i class="fa-solid fa-crown mr-1"></i> Trận Chung Kết</span>
+                    <div id="center-final-section" class="w-[220px] flex-shrink-0 flex flex-col justify-center gap-6 bg-gradient-to-b from-gold/5 via-panelbg/20 to-transparent p-3 rounded-3xl border border-gold/15">
+                        <h4 class="text-center font-extrabold text-xs text-gold bg-gold/10 py-2 rounded-xl border border-gold/20 uppercase tracking-widest">Trung Tâm</h4>
+                        <div class="space-y-2">
+                            <span class="block text-center text-xs font-black text-gold tracking-widest uppercase"><i class="fa-solid fa-crown mr-1"></i> Chung Kết</span>
                             <div id="final-match-container"></div>
                         </div>
-                        <div class="bg-panelbg/80 rounded-2xl border border-gold/30 p-6 flex flex-col items-center justify-center text-center glow-gold relative overflow-hidden">
-                            <i class="fa-solid fa-trophy text-5xl text-gold mb-3 animate-bounce-slow drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]"></i>
-                            <h5 class="text-xs font-extrabold text-gold tracking-widest uppercase mb-1">Nhà Vô Địch</h5>
-                            <div id="champion-display" class="font-black text-xl text-white py-1 uppercase tracking-wide">Chưa Xác Định</div>
-                            <div id="champion-flag" class="text-5xl mt-2 animate-pulse-slow">🏆</div>
+                        <div class="bg-panelbg/80 rounded-2xl border border-gold/30 p-4 flex flex-col items-center justify-center text-center glow-gold relative overflow-hidden">
+                            <i class="fa-solid fa-trophy text-4xl text-gold mb-2 animate-bounce-slow drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]"></i>
+                            <h5 class="text-[10px] font-extrabold text-gold tracking-widest uppercase mb-1">Nhà Vô Địch</h5>
+                            <div id="champion-display" class="font-black text-base text-white py-1 uppercase tracking-wide">Chưa Xác Định</div>
+                            <div id="champion-flag" class="text-4xl mt-1 animate-pulse-slow">🏆</div>
                         </div>
-                        <div class="space-y-3 border-t border-gray-800 pt-6">
+                        <div class="space-y-2 border-t border-gray-800 pt-4">
                             <span class="block text-center text-xs font-bold text-gray-400 tracking-widest uppercase">Tranh Hạng Ba</span>
                             <div id="third-place-match-container"></div>
                         </div>
                     </div>
 
-                    <div class="flex items-stretch gap-6 flex-1 justify-end">
-                        <div id="right-sf-section" class="w-[240px] flex-shrink-0">
+                    <div class="flex items-stretch gap-2 flex-1">
+                        <div id="right-sf-section" class="flex-1 min-w-[150px]">
                             <h4 class="text-center font-extrabold text-xs text-purple-400 bg-purple-950/40 py-2 rounded-xl border border-purple-900/30 mb-3 uppercase tracking-wider">Bán Kết (Phải)</h4>
                             <div id="right-sf-container" class="bracket-col"></div>
                         </div>
-                        <div id="right-qf-section" class="w-[240px] flex-shrink-0">
+                        <div id="right-qf-section" class="flex-1 min-w-[150px]">
                             <h4 class="text-center font-extrabold text-xs text-indigo-400 bg-indigo-950/40 py-2 rounded-xl border border-indigo-900/30 mb-3 uppercase tracking-wider">Tứ Kết (Phải)</h4>
                             <div id="right-qf-container" class="bracket-col"></div>
                         </div>
-                        <div id="right-r16-section" class="w-[240px] flex-shrink-0">
+                        <div id="right-r16-section" class="flex-1 min-w-[150px]">
                             <h4 class="text-center font-extrabold text-xs text-blue-400 bg-blue-950/40 py-2 rounded-xl border border-blue-900/30 mb-3 uppercase tracking-wider">Vòng 1/16 (Phải)</h4>
                             <div id="right-r16-container" class="bracket-col"></div>
                         </div>
-                        <div id="right-r32-section" class="w-[240px] flex-shrink-0">
+                        <div id="right-r32-section" class="flex-1 min-w-[150px]">
                             <h4 class="text-center font-extrabold text-xs text-gray-400 bg-gray-900/60 py-2 rounded-xl border border-gray-800/80 mb-3 uppercase tracking-wider">Vòng 1/32 (Phải)</h4>
                             <div id="right-r32-container" class="bracket-col"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 4: STATISTICS -->
-        <div id="content-statistics" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="bg-panelbg/60 p-6 rounded-2xl border border-gray-800 space-y-6">
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-circle-nodes text-gold"></i> Phân Tích Sức Mạnh</h3>
-                    <p class="text-xs text-gray-400">Ứng cử viên đi sâu dựa trên nhánh đấu bạn đã dựng.</p>
-                    <div class="bg-darkbg/50 p-4 rounded-xl space-y-3">
-                        <span class="text-xs font-extrabold uppercase tracking-wider text-gray-400 block"><i class="fa-solid fa-star text-gold mr-1"></i> Top Ứng Cử Viên</span>
-                        <div id="top-candidates-list" class="space-y-2 text-sm text-gray-300"></div>
-                    </div>
-                </div>
-                <div class="bg-panelbg/60 p-6 rounded-2xl border border-gray-800 space-y-4 lg:col-span-2">
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-regular fa-comments text-accentgreen"></i> Nhật Ký Diễn Biến</h3>
-                    <p class="text-xs text-gray-400">Cập nhật theo thao tác của bạn.</p>
-                    <div id="commentary-list" class="space-y-3 max-h-[350px] overflow-y-auto pr-2">
-                        <div class="p-3 bg-darkbg/30 rounded-xl border-l-4 border-blue-500 text-xs text-gray-300">
-                            <strong>Sẵn sàng:</strong> Nhập kết quả vòng bảng hoặc bấm "Giả Lập Nhánh" để bắt đầu.
                         </div>
                     </div>
                 </div>
@@ -344,8 +322,42 @@
         const GROUP_IDS = ["A","B","C","D","E","F","G","H","I","J","K","L"];
         const STORAGE_KEY = "wc2026_state_v1";
 
+        /* Cờ ảnh (flagcdn) — render đẹp trên Windows (emoji cờ bị hiện thành mã 2 chữ).
+           Slug lấy từ endpoint /get/teams. */
+        const FLAG_SLUG = {
+            MEX:"mx", RSA:"za", KOR:"kr", CZE:"cz", CAN:"ca", BIH:"ba", QAT:"qa", SUI:"ch",
+            BRA:"br", MAR:"ma", HAI:"ht", SCO:"gb-sct", USA:"us", PAR:"py", AUS:"au", TUR:"tr",
+            GER:"de", CUW:"cw", CIV:"ci", ECU:"ec", NED:"nl", JPN:"jp", SWE:"se", TUN:"tn",
+            BEL:"be", EGY:"eg", IRN:"ir", NZL:"nz", ESP:"es", CPV:"cv", KSA:"sa", URU:"uy",
+            FRA:"fr", SEN:"sn", IRQ:"iq", NOR:"no", ARG:"ar", ALG:"dz", AUT:"at", JOR:"jo",
+            POR:"pt", COD:"cd", UZB:"uz", COL:"co", ENG:"gb-eng", CRO:"hr", GHA:"gh", PAN:"pa"
+        };
+        const flagUrl = code => FLAG_SLUG[code] ? `https://flagcdn.com/w40/${FLAG_SLUG[code]}.png` : "";
+        // Ghi đè field flag (emoji) trong TEAMS_DATA bằng URL ảnh.
+        Object.keys(TEAMS_DATA).forEach(c => { TEAMS_DATA[c].flag = flagUrl(c); });
+
+        // Render thẻ <img> cờ. wCls: class chiều rộng Tailwind.
+        function flagImg(t, wCls = "w-6") {
+            if (!t || !t.flag) return `<span class="inline-block ${wCls}"></span>`;
+            return `<img src="${t.flag}" alt="" loading="lazy" class="${wCls} h-auto rounded-[2px] inline-block align-middle shadow-sm" onerror="this.style.visibility='hidden'">`;
+        }
+
+
+        /* Nguồn live (keyless, CORS mở). Map team_id -> fifa_code dựng 1 lần từ /get/teams.
+           team_id cố định nên hardcode an toàn. */
+        const LIVE_GROUPS_URL = "https://worldcup26.ir/get/groups";
+        const TEAM_ID_TO_CODE = {
+            "1":"MEX","2":"RSA","3":"KOR","4":"CZE","5":"CAN","6":"BIH","7":"QAT","8":"SUI",
+            "9":"BRA","10":"MAR","11":"HAI","12":"SCO","13":"USA","14":"PAR","15":"AUS","16":"TUR",
+            "17":"GER","18":"CUW","19":"CIV","20":"ECU","21":"NED","22":"JPN","23":"SWE","24":"TUN",
+            "25":"BEL","26":"EGY","27":"IRN","28":"NZL","29":"ESP","30":"CPV","31":"KSA","32":"URU",
+            "33":"FRA","34":"SEN","35":"IRQ","36":"NOR","37":"ARG","38":"ALG","39":"AUT","40":"JOR",
+            "41":"POR","42":"COD","43":"UZB","44":"COL","45":"ENG","46":"CRO","47":"GHA","48":"PAN"
+        };
+
         let groupsState = {};
         let editMode = false;
+        let dataIsLive = false;   // true = thứ tự trong bảng do API xếp (tôn trọng đối đầu trực tiếp)
         let knockoutState = buildEmptyKnockout();
 
         function buildEmptyKnockout() {
@@ -399,6 +411,12 @@
             return a.name.localeCompare(b.name);
         }
 
+        /* Khi dữ liệu là LIVE: API đã xếp hạng sẵn (gồm đối đầu trực tiếp) -> giữ nguyên.
+           Khi nhập tay: tự sort theo compareTeams. */
+        function getStandings(gId) {
+            return dataIsLive ? groupsState[gId] : [...groupsState[gId]].sort(compareTeams);
+        }
+
         /* =========================================================================
            2. PHÂN BỔ ĐỘI HẠNG 3 (backtracking). 
            ⚠️ CẦN ĐỐI CHIẾU: các danh sách allowed dưới đây phải khớp 100% với bảng
@@ -442,7 +460,7 @@
         function calculateAdvancingTeams() {
             const winners = {}, runnersUp = {}, thirds = [];
             GROUP_IDS.forEach(gId => {
-                const sorted = [...groupsState[gId]].sort(compareTeams);
+                const sorted = getStandings(gId);
                 winners[gId] = sorted[0];
                 runnersUp[gId] = sorted[1];
                 thirds.push({ ...sorted[2], sourceGroup: gId });
@@ -556,7 +574,7 @@
             container.innerHTML = "";
 
             for (let gId of GROUP_IDS) {
-                const teams = editMode ? groupsState[gId] : [...groupsState[gId]].sort(compareTeams);
+                const teams = editMode ? groupsState[gId] : getStandings(gId);
                 const card = document.createElement("div");
                 card.className = "bg-panelbg/70 rounded-2xl border border-gray-800/80 p-4 shadow-lg space-y-3 relative overflow-hidden";
 
@@ -571,39 +589,43 @@
 
                     if (editMode) {
                         rows += `
-                        <tr class="border-b border-gray-800/50">
-                            <td class="py-1.5 px-1 font-medium text-xs">
-                                <span class="mr-1">${team.flag}</span>
-                                <span class="text-gray-200 truncate inline-block max-w-[70px] align-middle">${team.name}</span>
+                        <tr class="border-b border-gray-800/50 h-[40px]">
+                            <td class="px-1">
+                                <div class="flex items-center gap-1 overflow-hidden">
+                                    <span class="shrink-0" title="${team.name}">${flagImg(team, 'w-5')}</span>
+                                    <span class="text-gray-200 text-xs truncate min-w-0">${team.name}</span>
+                                </div>
                             </td>
-                            <td class="py-1.5 text-center"><input type="number" min="0" class="stat-input" value="${team.w}" onchange="editStat('${gId}','${team.code}','w',this.value)"></td>
-                            <td class="py-1.5 text-center"><input type="number" min="0" class="stat-input" value="${team.d}" onchange="editStat('${gId}','${team.code}','d',this.value)"></td>
-                            <td class="py-1.5 text-center"><input type="number" min="0" class="stat-input" value="${team.l}" onchange="editStat('${gId}','${team.code}','l',this.value)"></td>
-                            <td class="py-1.5 text-center"><input type="number" min="0" class="stat-input" value="${team.gf}" onchange="editStat('${gId}','${team.code}','gf',this.value)"></td>
-                            <td class="py-1.5 text-center"><input type="number" min="0" class="stat-input" value="${team.ga}" onchange="editStat('${gId}','${team.code}','ga',this.value)"></td>
+                            <td class="text-center"><input type="number" min="0" class="stat-input" value="${team.w}" onchange="editStat('${gId}','${team.code}','w',this.value)"></td>
+                            <td class="text-center"><input type="number" min="0" class="stat-input" value="${team.d}" onchange="editStat('${gId}','${team.code}','d',this.value)"></td>
+                            <td class="text-center"><input type="number" min="0" class="stat-input" value="${team.l}" onchange="editStat('${gId}','${team.code}','l',this.value)"></td>
+                            <td class="text-center"><input type="number" min="0" class="stat-input" value="${team.gf}" onchange="editStat('${gId}','${team.code}','gf',this.value)"></td>
+                            <td class="text-center"><input type="number" min="0" class="stat-input" value="${team.ga}" onchange="editStat('${gId}','${team.code}','ga',this.value)"></td>
                         </tr>`;
                     } else {
                         rows += `
-                        <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
-                            <td class="py-2.5 text-xs text-center ${pos}">${index + 1}</td>
-                            <td class="py-2.5 px-1 font-medium text-sm">
-                                <span class="mr-1 text-base" title="${team.name}">${team.flag}</span>
-                                <span class="text-gray-200 truncate inline-block max-w-[85px] align-middle">${team.name}</span>
+                        <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors h-[44px]">
+                            <td class="text-xs text-center ${pos}">${index + 1}</td>
+                            <td class="px-1">
+                                <div class="flex items-center gap-1.5 overflow-hidden">
+                                    <span class="shrink-0" title="${team.name}">${flagImg(team, 'w-6')}</span>
+                                    <span class="text-gray-200 text-sm truncate min-w-0">${team.name}</span>
+                                </div>
                             </td>
-                            <td class="py-2 text-center font-bold text-xs text-gray-300">${played(team)}</td>
-                            <td class="py-2 text-center text-xs font-semibold ${gd(team) > 0 ? 'text-accentgreen' : gd(team) < 0 ? 'text-red-400' : 'text-gray-400'}">${gd(team) > 0 ? '+' : ''}${gd(team)}</td>
-                            <td class="py-2 text-center font-extrabold text-xs text-white">${points(team)}</td>
+                            <td class="text-center font-bold text-xs text-gray-300">${played(team)}</td>
+                            <td class="text-center text-xs font-semibold ${gd(team) > 0 ? 'text-accentgreen' : gd(team) < 0 ? 'text-red-400' : 'text-gray-400'}">${gd(team) > 0 ? '+' : ''}${gd(team)}</td>
+                            <td class="text-center font-extrabold text-xs text-white">${points(team)}</td>
                         </tr>`;
                     }
                 });
 
                 const head = editMode
                     ? `<tr class="text-[10px] text-gray-400 uppercase border-b border-gray-800">
-                           <th class="pb-1 text-left">Đội</th><th class="pb-1 text-center">T</th><th class="pb-1 text-center">H</th>
-                           <th class="pb-1 text-center">B</th><th class="pb-1 text-center">BT</th><th class="pb-1 text-center">BB</th></tr>`
+                           <th class="pb-1 text-left">Đội</th><th class="pb-1 w-9 text-center">T</th><th class="pb-1 w-9 text-center">H</th>
+                           <th class="pb-1 w-9 text-center">B</th><th class="pb-1 w-9 text-center">BT</th><th class="pb-1 w-9 text-center">BB</th></tr>`
                     : `<tr class="text-[10px] text-gray-400 uppercase tracking-wider border-b border-gray-800">
-                           <th class="pb-1 w-7 text-center">#</th><th class="pb-1 w-[100px]">Đội</th>
-                           <th class="pb-1 w-10 text-center">ST</th><th class="pb-1 w-10 text-center">HS</th><th class="pb-1 text-center">Điểm</th></tr>`;
+                           <th class="pb-1 w-7 text-center">#</th><th class="pb-1 text-left">Đội</th>
+                           <th class="pb-1 w-9 text-center">ST</th><th class="pb-1 w-10 text-center">HS</th><th class="pb-1 w-12 text-center">Điểm</th></tr>`;
 
                 card.innerHTML = `
                     <div class="flex items-center justify-between border-b border-gray-800 pb-2">
@@ -611,7 +633,7 @@
                             BẢNG ${gId} <span class="w-1.5 h-1.5 ${editMode ? 'bg-blue-400' : 'bg-accentgreen'} rounded-full"></span>
                         </span>
                     </div>
-                    <table class="w-full text-left"><thead>${head}</thead><tbody>${rows}</tbody></table>`;
+                    <table class="w-full text-left table-fixed"><thead>${head}</thead><tbody>${rows}</tbody></table>`;
                 container.appendChild(card);
             }
         }
@@ -629,7 +651,7 @@
                     <tr class="${rowClass} transition-colors">
                         <td class="py-3.5 text-center font-extrabold text-sm pl-4"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs ${badge}">${idx + 1}</span></td>
                         <td class="py-3.5 text-center font-bold text-xs text-gold">Bảng ${team.sourceGroup}</td>
-                        <td class="py-3.5 font-semibold text-sm"><span class="mr-2 text-lg">${team.flag}</span><span class="text-white">${team.name}</span></td>
+                        <td class="py-3.5 font-semibold text-sm"><span class="mr-2 inline-block align-middle">${flagImg(team, 'w-7')}</span><span class="text-white align-middle">${team.name}</span></td>
                         <td class="py-3.5 text-center font-bold text-xs text-gray-300">${played(team)}</td>
                         <td class="py-3.5 text-center text-xs font-semibold ${gd(team) >= 0 ? 'text-accentgreen' : 'text-red-400'}">${gd(team) > 0 ? '+' : ''}${gd(team)}</td>
                         <td class="py-3.5 text-center text-xs text-gray-300">${team.gf}</td>
@@ -651,11 +673,11 @@
                         <div class="absolute -top-2.5 left-4 bg-gray-900 px-2.5 py-0.5 rounded-full text-[9px] text-gray-500 font-bold border border-gray-800 uppercase">Trận ${index + 1}</div>
                         <div class="space-y-1.5 mt-1">
                             <div onclick="advanceTeam('${roundKey}', ${index}, 1)" class="flex items-center justify-between p-2 rounded-xl border ${t1Class} cursor-pointer transition-all duration-300">
-                                <div class="flex items-center gap-2 truncate"><span class="text-lg">${t1 ? t1.flag : '❓'}</span><span class="text-xs truncate">${t1 ? t1.name : 'Chờ cặp đấu'}</span></div>
+                                <div class="flex items-center gap-2 truncate"><span class="shrink-0">${t1 ? flagImg(t1, 'w-6') : '<span class="text-base">❓</span>'}</span><span class="text-xs truncate">${t1 ? t1.name : 'Chờ cặp đấu'}</span></div>
                                 ${t1Won ? '<span class="text-[9px] text-gold font-bold bg-gold/20 px-1.5 py-0.5 rounded uppercase">Thắng</span>' : ''}
                             </div>
                             <div onclick="advanceTeam('${roundKey}', ${index}, 2)" class="flex items-center justify-between p-2 rounded-xl border ${t2Class} cursor-pointer transition-all duration-300">
-                                <div class="flex items-center gap-2 truncate"><span class="text-lg">${t2 ? t2.flag : '❓'}</span><span class="text-xs truncate">${t2 ? t2.name : 'Chờ cặp đấu'}</span></div>
+                                <div class="flex items-center gap-2 truncate"><span class="shrink-0">${t2 ? flagImg(t2, 'w-6') : '<span class="text-base">❓</span>'}</span><span class="text-xs truncate">${t2 ? t2.name : 'Chờ cặp đấu'}</span></div>
                                 ${t2Won ? '<span class="text-[9px] text-gold font-bold bg-gold/20 px-1.5 py-0.5 rounded uppercase">Thắng</span>' : ''}
                             </div>
                         </div>
@@ -678,8 +700,8 @@
             const champDisplay = document.getElementById("champion-display");
             const champFlag = document.getElementById("champion-flag");
             if (knockoutState.champion) {
-                champDisplay.innerHTML = `<span class="text-gold font-black">${knockoutState.champion.flag} ${knockoutState.champion.name}</span>`;
-                champFlag.innerText = knockoutState.champion.flag;
+                champDisplay.innerHTML = `<span class="text-gold font-black inline-flex items-center justify-center gap-2">${flagImg(knockoutState.champion, 'w-7')} ${knockoutState.champion.name}</span>`;
+                champFlag.innerHTML = flagImg(knockoutState.champion, 'w-12');
             } else {
                 champDisplay.innerText = "CHƯA XÁC ĐỊNH";
                 champFlag.innerText = "🏆";
@@ -693,6 +715,7 @@
             const team = groupsState[gId].find(t => t.code === code);
             if (!team) return;
             team[field] = Math.max(0, parseInt(value) || 0);
+            dataIsLive = false; // người dùng tự sửa -> chuyển sang xếp hạng theo luật
             // Không re-sort khi đang gõ để tránh nhảy dòng; áp dụng khi tắt edit / bấm cập nhật.
         }
 
@@ -745,33 +768,15 @@
         }
         function triggerChampionConfetti(team) {
             confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#D4AF37', '#ffffff', '#1E3A8A', '#10B981'] });
-            addCommentary(`🏆 <strong>${team.flag} ${team.name}</strong> vô địch World Cup 2026!`);
+            addCommentary(`🏆 <strong>${team.name}</strong> vô địch World Cup 2026!`);
         }
 
         /* =========================================================================
            6. PHÂN TÍCH
         ========================================================================= */
         function updateAnalysis() {
-            const cand = {};
-            const add = (team, w) => { if (!team) return; if (!cand[team.code]) cand[team.code] = { team, points: 0 }; cand[team.code].points += w; };
-            knockoutState.r32.forEach(m => { add(m.team1, 1); add(m.team2, 1); add(m.winner, 2); });
-            knockoutState.r16.forEach(m => add(m.winner, 4));
-            knockoutState.qf.forEach(m => add(m.winner, 8));
-            knockoutState.sf.forEach(m => add(m.winner, 16));
-            if (knockoutState.champion) add(knockoutState.champion, 32);
-
-            const sorted = Object.values(cand).sort((a, b) => b.points - a.points).slice(0, 3);
-            const container = document.getElementById("top-candidates-list");
-            if (!sorted.length) { container.innerHTML = `<div class="text-xs text-gray-500 italic">Bấm "Giả Lập Nhánh" để phân tích.</div>`; return; }
-            container.innerHTML = sorted.map((c, i) => {
-                let badge = "bg-gray-800 text-gray-300";
-                if (i === 0) badge = "bg-gold/20 text-gold border border-gold/40";
-                if (i === 1) badge = "bg-slate-300/20 text-slate-200";
-                if (i === 2) badge = "bg-amber-700/20 text-amber-500";
-                return `<div class="flex items-center justify-between p-2 rounded-lg bg-darkbg/40">
-                    <div class="flex items-center gap-2"><span class="w-5 h-5 flex items-center justify-center text-xs font-bold rounded-full ${badge}">${i + 1}</span><span>${c.team.flag} ${c.team.name}</span></div>
-                    <span class="text-xs font-bold text-gray-400">Sức mạnh: ${c.points}</span></div>`;
-            }).join('');
+            // Tab Phân Tích đã gỡ; giữ hàm rỗng để các lời gọi sẵn có không lỗi.
+            return;
         }
 
         function addCommentary(message) {
@@ -845,25 +850,65 @@
         }
 
         /* =========================================================================
-           8. HOOK LIVE — cô lập. Khi có nguồn đã xác minh (schema + CORS) thì điền vào đây.
-              Hiện tại chưa cấu hình → báo rõ thay vì fail âm thầm.
+           8. LIVE — nguồn keyless worldcup26.ir (CORS mở). Gọi thẳng từ browser.
         ========================================================================= */
-        async function fetchLiveData() {
-            // ────────────────────────────────────────────────────────────────────
-            // CÁCH WIRE (khi bạn đã có nguồn):
-            //   1. const res = await fetch(YOUR_ENDPOINT);  // hoặc qua Vercel proxy /api/standings
-            //   2. const json = await res.json();
-            //   3. Map về groupsState[gId] = [{code, w, d, l, gf, ga}, ...] theo schema của bạn.
-            //   4. Gọi recomputeAll();
-            // Nếu gặp CORS: tạo file api/standings.js (Vercel Serverless) làm proxy giấu key.
-            // ────────────────────────────────────────────────────────────────────
-            const CONFIGURED = false; // ← đổi thành true sau khi điền logic ở trên
-            if (!CONFIGURED) {
-                toast("Chưa cấu hình nguồn Live. Dùng \"Nhập / Sửa Kết Quả\" để cập nhật tay (chi tiết trong code, hàm fetchLiveData).");
-                return;
+        async function fetchLiveData(silent = false) {
+            if (!silent) toast("Đang lấy dữ liệu live...");
+            try {
+                const res = await fetch(LIVE_GROUPS_URL, { cache: "no-store" });
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                const json = await res.json();
+                if (!json.groups || !Array.isArray(json.groups)) throw new Error("Sai cấu trúc dữ liệu");
+
+                let mapped = 0, skipped = 0;
+                const next = {};
+                json.groups.forEach(g => {
+                    const gId = g.name;
+                    if (!GROUP_IDS.includes(gId)) return;
+                    next[gId] = (g.teams || []).map(t => {
+                        const code = TEAM_ID_TO_CODE[String(t.team_id)];
+                        const base = TEAMS_DATA[code];
+                        if (!base) { skipped++; return null; }
+                        mapped++;
+                        return {
+                            code, name: base.name, flag: base.flag, rating: base.rating,
+                            w: parseInt(t.w) || 0, d: parseInt(t.d) || 0, l: parseInt(t.l) || 0,
+                            gf: parseInt(t.gf) || 0, ga: parseInt(t.ga) || 0
+                        };
+                    }).filter(Boolean);
+                });
+
+                // Chỉ áp dụng nếu đủ 12 bảng x 4 đội (tránh ghi đè bằng dữ liệu lỗi)
+                const complete = GROUP_IDS.every(id => next[id] && next[id].length === 4);
+                if (!complete || skipped > 0) throw new Error("Dữ liệu thiếu đội (mapped " + mapped + ")");
+
+                groupsState = next;
+                dataIsLive = true;                  // tôn trọng thứ tự xếp hạng của API
+
+                // Giữ lại dự đoán knockout người dùng đã bấm trước đó
+                const savedKO = {
+                    r32: knockoutState.r32.map(m => m.winner ? m.winner.code : null),
+                    r16: knockoutState.r16.map(m => m.winner ? m.winner.code : null),
+                    qf: knockoutState.qf.map(m => m.winner ? m.winner.code : null),
+                    sf: knockoutState.sf.map(m => m.winner ? m.winner.code : null),
+                    final: knockoutState.final.winner ? knockoutState.final.winner.code : null,
+                    thirdPlace: knockoutState.thirdPlace.winner ? knockoutState.thirdPlace.winner.code : null
+                };
+
+                renderGroups();
+                calculateAdvancingTeams();
+                reapplyKnockoutWinners(savedKO);
+                updateAnalysis();
+                saveState();
+
+                const now = new Date().toLocaleTimeString('vi-VN');
+                document.getElementById("mode-indicator").innerText = "Live";
+                document.getElementById("mode-indicator").className = "font-bold text-accentgreen text-sm";
+                if (!silent) { toast("✅ Đã cập nhật live lúc " + now); addCommentary("📡 Đã đồng bộ kết quả vòng bảng live lúc " + now + "."); }
+            } catch (e) {
+                if (!silent) toast("⚠️ Không lấy được dữ liệu live (" + e.message + "). Đang giữ dữ liệu hiện tại — có thể nhập tay.");
+                console.warn("Live fetch failed:", e);
             }
-            // ví dụ khung xử lý (đang tắt):
-            // try { ... } catch (e) { toast("Không lấy được dữ liệu Live: " + e.message); }
         }
 
         function toast(msg) {
@@ -882,7 +927,7 @@
             document.querySelectorAll('.tab-content').forEach(el => { el.classList.add('hidden'); el.classList.remove('block'); });
             document.getElementById(`content-${tabId}`).classList.remove('hidden');
             document.getElementById(`content-${tabId}`).classList.add('block');
-            ['group-stage', 'third-places', 'knockout-bracket', 'statistics'].forEach(t => {
+            ['group-stage', 'third-places', 'knockout-bracket'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if (!btn) return;
                 btn.className = (t === tabId)
@@ -915,6 +960,8 @@
             calculateAdvancingTeams();
             if (hadSave && window.__savedKO) reapplyKnockoutWinners(window.__savedKO);
             updateAnalysis();
+            // Tự lấy live (im lặng). Nếu thất bại sẽ giữ nguyên dữ liệu đã khôi phục ở trên.
+            fetchLiveData(true);
         };
     </script>
 </body>
