@@ -33,7 +33,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #374151; }
         .glow-gold { box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
         .tab-transition { transition: all 0.3s ease-in-out; }
-        .bracket-col { display: flex; flex-direction: column; justify-content: space-around; height: 1050px; }
+        .bracket-col { display: flex; flex-direction: column; justify-content: space-around; height: 820px; }
         /* Tab Knockout: phá khung max-w-7xl để tràn full width màn hình (bulletproof) */
         #content-knockout-bracket {
             position: relative;
@@ -1064,21 +1064,31 @@
                     ? "flex-1 text-center py-3 px-4 rounded-xl text-sm font-bold bg-gold text-darkbg shadow-lg tab-transition whitespace-nowrap"
                     : "flex-1 text-center py-3 px-4 rounded-xl text-sm font-semibold text-gray-400 hover:text-white transition-all duration-300 tab-transition whitespace-nowrap";
             });
-            if (tabId === 'knockout-bracket') requestAnimationFrame(scaleBracket);
+            if (tabId === 'knockout-bracket') {
+                requestAnimationFrame(() => {
+                    scaleBracket();
+                    const el = document.getElementById('content-knockout-bracket');
+                    const y = el.getBoundingClientRect().top + window.scrollY - 78; // chừa header dính
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                });
+            }
         }
 
-        /* Co giãn cây knockout cho vừa đúng chiều ngang màn hình (luôn thấy đủ trái + phải). */
+        /* Co cây knockout vừa CẢ chiều ngang lẫn chiều dọc -> thấy trọn trên 1 màn hình. */
         function scaleBracket() {
             const vp = document.getElementById('bracket-viewport');
             const sc = document.getElementById('bracket-scaler');
-            if (!vp || !sc || vp.clientWidth === 0) return; // tab đang ẩn -> bỏ qua
-            sc.style.transform = 'none';                     // reset để đo khổ gốc
-            const naturalW = sc.scrollWidth;
-            const naturalH = sc.scrollHeight;
-            if (!naturalW) return;
-            const s = vp.clientWidth / naturalW;
+            if (!vp || !sc || vp.clientWidth === 0) return;
+            sc.style.transform = 'none';
+            sc.style.marginLeft = '0';
+            const nW = sc.scrollWidth, nH = sc.scrollHeight;
+            if (!nW || !nH) return;
+            const availW = vp.clientWidth;
+            const availH = Math.max(440, window.innerHeight - 96);   // ngân sách chiều cao dưới header
+            const s = Math.min(availW / nW, availH / nH);
             sc.style.transform = `scale(${s})`;
-            vp.style.height = (naturalH * s) + 'px';
+            sc.style.marginLeft = Math.max(0, (availW - nW * s) / 2) + 'px';  // canh giữa khi dư ngang
+            vp.style.height = (nH * s) + 'px';
         }
         window.addEventListener('resize', () => {
             if (!document.getElementById('content-knockout-bracket').classList.contains('hidden')) scaleBracket();
