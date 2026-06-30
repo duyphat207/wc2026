@@ -341,6 +341,14 @@
         /* Nguồn live (keyless, CORS mở). Map team_id -> fifa_code dựng 1 lần từ /get/teams.
            team_id cố định nên hardcode an toàn. */
         const LIVE_GROUPS_URL = "https://worldcup26.ir/get/groups";
+        const LIVE_GAMES_URL = "https://worldcup26.ir/get/games";
+        /* Map vị trí trận trong cây (visual) -> match id chính thức của API.
+           Suy ra từ linkage "Winner Match N" của API, khớp đúng topology cây hiện tại. */
+        const R32_SLOT_TO_APIID = [74,77,73,75,76,78,79,80,83,84,81,82,86,88,85,87];
+        const R16_SLOT_TO_APIID = [89,90,91,92,93,94,95,96];
+        const QF_SLOT_TO_APIID  = [97,98,99,100];
+        const SF_SLOT_TO_APIID  = [101,102];
+        const FINAL_APIID = 104, THIRD_APIID = 103;
         const TEAM_ID_TO_CODE = {
             "1":"MEX","2":"RSA","3":"KOR","4":"CZE","5":"CAN","6":"BIH","7":"QAT","8":"SUI",
             "9":"BRA","10":"MAR","11":"HAI","12":"SCO","13":"USA","14":"PAR","15":"AUS","16":"TUR",
@@ -551,6 +559,7 @@
             const match = roundKey === 'final' ? knockoutState.final
                         : roundKey === 'thirdPlace' ? knockoutState.thirdPlace
                         : knockoutState[roundKey][matchIndex];
+            if (match.official) return;          // trận đã có kết quả chính thức -> không cho đổi
             const target = teamNum === 1 ? match.team1 : match.team2;
             if (!target) return;
             match.winner = target;
@@ -559,6 +568,102 @@
             renderKnockoutBracket();
             updateAnalysis();
             saveState();
+        }
+
+        /* =========================================================================
+           KO TỪ API: dựng nhánh knockout từ kết quả chính thức (/get/games).
+           Trận đã đá -> winner chính thức + khóa. Trận chưa đá -> giữ dự đoán user.
+        ========================================================================= */
+        function teamFromId(tid) {
+            const code = TEAM_ID_TO_CODE[String(tid)];
+            if (!code || String(tid) === "0") return null;
+            const base = TEAMS_DATA[code];
+            return base ? { code, name: base.name, flag: base.flag, rating: base.rating } : null;
+        }
+        function apiWinnerSide(g) {
+            if (!g || g.finished !== "TRUE") return null;
+            const hs = parseInt(g.home_score), as = parseInt(g.away_score);
+            if (isNaN(hs) || isNaN(as)) return null;
+            if (hs > as) return 'home';
+            if (as > hs) return 'away';
+            const hp = parseInt(g.home_penalty_score), ap = parseInt(g.away_penalty_score);
+            if (!isNaN(hp) && !isNaN(ap) && hp !== ap) return hp > ap ? 'home' : 'away';
+            return null;
+        }
+        function fmtScore(g) {
+            if (!g || g.finished !== "TRUE") return null;
+            let s = `${g.home_score}-${g.away_score}`;
+            const hp = parseInt(g.home_penalty_score), ap = parseInt(g.away_penalty_score);
+            if (!isNaN(hp) && !isNaN(ap)) s += ` (pen ${hp}-${ap})`;
+            return s;
+        }
+        // Gán kết quả chính thức cho 1 trận (team1/team2 đã có sẵn từ cascade), theo code đội thắng.
+        function applyOfficial(match, g) {
+            if (!match || !g || g.finished !== "TRUE") return;
+            const side = apiWinnerSide(g);
+            if (!side) return;
+            const winId = side === 'home' ? g.home_team_id : g.away_team_id;
+            const code = TEAM_ID_TO_CODE[String(winId)];
+            if (match.team1 && match.team1.code === code) match.winner = match.team1;
+            else if (match.team2 && match.team2.code === code) match.winner = match.team2;
+            match.official = true;
+            match.score = fmtScore(g);
+        }
+
+        function buildKnockoutFromApi(games) {
+            const byId = {};
+            games.forEach(g => { byId[g.id] = g; });
+            // Cần ít nhất R32 đã có đội (vòng bảng xong). Nếu chưa -> báo chưa dựng được.
+            const haveR32 = R32_SLOT_TO_APIID.some(id => {
+                const g = byId[id];
+                return g && (String(g.home_team_id) !== "0" || String(g.away_team_id) !== "0");
+            });
+            if (!haveR32) return false;
+
+            // Giữ lại dự đoán hiện tại của user (theo code) để gắn lại cho các trận CHƯA chính thức
+            const savedKO = {
+                r32: knockoutState.r32.map(m => m.winner ? m.winner.code : null),
+                r16: knockoutState.r16.map(m => m.winner ? m.winner.code : null),
+                qf: knockoutState.qf.map(m => m.winner ? m.winner.code : null),
+                sf: knockoutState.sf.map(m => m.winner ? m.winner.code : null),
+                final: knockoutState.final.winner ? knockoutState.final.winner.code : null,
+                thirdPlace: knockoutState.thirdPlace.winner ? knockoutState.thirdPlace.winner.code : null
+            };
+
+            knockoutState = buildEmptyKnockout();
+
+            // R32: đội + kết quả chính thức
+            R32_SLOT_TO_APIID.forEach((apiId, slot) => {
+                const g = byId[apiId];
+                const m = knockoutState.r32[slot];
+                if (!g) return;
+                m.team1 = teamFromId(g.home_team_id);
+                m.team2 = teamFromId(g.away_team_id);
+                if (g.finished === "TRUE") {
+                    const side = apiWinnerSide(g);
+                    if (side === 'home') m.winner = m.team1;
+                    else if (side === 'away') m.winner = m.team2;
+                    m.official = true;
+                    m.score = fmtScore(g);
+                }
+            });
+            syncSubsequentKnockoutRounds();
+
+            // Áp kết quả chính thức cho các vòng sau (nếu có), xen kẽ sync để cascade
+            R16_SLOT_TO_APIID.forEach((id, i) => applyOfficial(knockoutState.r16[i], byId[id]));
+            syncSubsequentKnockoutRounds();
+            QF_SLOT_TO_APIID.forEach((id, i) => applyOfficial(knockoutState.qf[i], byId[id]));
+            syncSubsequentKnockoutRounds();
+            SF_SLOT_TO_APIID.forEach((id, i) => applyOfficial(knockoutState.sf[i], byId[id]));
+            syncSubsequentKnockoutRounds();
+            applyOfficial(knockoutState.final, byId[FINAL_APIID]);
+            applyOfficial(knockoutState.thirdPlace, byId[THIRD_APIID]);
+            knockoutState.champion = knockoutState.final.winner || null;
+
+            // Gắn lại dự đoán user cho các trận CHƯA chính thức
+            reapplyKnockoutWinners(savedKO);
+            renderKnockoutBracket();
+            return true;
         }
 
         /* =========================================================================
@@ -659,21 +764,34 @@
         function renderKnockoutBracket() {
             function matchHtml(match, roundKey, index) {
                 const t1 = match.team1, t2 = match.team2;
+                const official = !!match.official;
                 const t1Won = match.winner && t1 && match.winner.code === t1.code;
                 const t2Won = match.winner && t2 && match.winner.code === t2.code;
-                const t1Class = t1Won ? 'bg-gold/10 border-gold text-white font-extrabold shadow-sm' : 'hover:bg-gray-800/20 border-gray-800 text-gray-400 hover:text-white';
-                const t2Class = t2Won ? 'bg-gold/10 border-gold text-white font-extrabold shadow-sm' : 'hover:bg-gray-800/20 border-gray-800 text-gray-400 hover:text-white';
+                const winColor = official ? 'bg-accentgreen/10 border-accentgreen text-white font-extrabold shadow-sm'
+                                          : 'bg-gold/10 border-gold text-white font-extrabold shadow-sm';
+                const idleColor = official ? 'border-gray-800 text-gray-400'
+                                           : 'hover:bg-gray-800/20 border-gray-800 text-gray-400 hover:text-white';
+                const t1Class = t1Won ? winColor : idleColor;
+                const t2Class = t2Won ? winColor : idleColor;
+                const cursor = official ? 'cursor-default' : 'cursor-pointer';
+                const tagColor = official ? 'text-accentgreen bg-accentgreen/20' : 'text-gold bg-gold/20';
+                const tagText = official ? 'Đi tiếp' : 'Thắng';
+                const click1 = official ? '' : `onclick="advanceTeam('${roundKey}', ${index}, 1)"`;
+                const click2 = official ? '' : `onclick="advanceTeam('${roundKey}', ${index}, 2)"`;
+                const badge = official
+                    ? `<span class="text-[8px] text-accentgreen font-bold uppercase tracking-wider"><i class="fa-solid fa-lock mr-0.5"></i>Chính thức${match.score ? ' · ' + match.score : ''}</span>`
+                    : `<span class="text-[9px] text-gray-500 font-bold uppercase">Trận ${index + 1}</span>`;
                 return `
-                    <div class="bg-panelbg/60 rounded-2xl border border-gray-800/80 p-3 hover:border-gray-700 transition shadow-md relative group w-full">
-                        <div class="absolute -top-2.5 left-4 bg-gray-900 px-2.5 py-0.5 rounded-full text-[9px] text-gray-500 font-bold border border-gray-800 uppercase">Trận ${index + 1}</div>
+                    <div class="bg-panelbg/60 rounded-2xl border ${official ? 'border-accentgreen/30' : 'border-gray-800/80'} p-3 transition shadow-md relative group w-full">
+                        <div class="absolute -top-2.5 left-3 bg-gray-900 px-2 py-0.5 rounded-full border border-gray-800">${badge}</div>
                         <div class="space-y-1.5 mt-1">
-                            <div onclick="advanceTeam('${roundKey}', ${index}, 1)" class="flex items-center justify-between p-2 rounded-xl border ${t1Class} cursor-pointer transition-all duration-300">
+                            <div ${click1} class="flex items-center justify-between p-2 rounded-xl border ${t1Class} ${cursor} transition-all duration-300">
                                 <div class="flex items-center gap-2 truncate"><span class="shrink-0">${t1 ? flagImg(t1, 'w-6') : '<span class="text-base">❓</span>'}</span><span class="text-xs truncate">${t1 ? t1.name : 'Chờ cặp đấu'}</span></div>
-                                ${t1Won ? '<span class="text-[9px] text-gold font-bold bg-gold/20 px-1.5 py-0.5 rounded uppercase">Thắng</span>' : ''}
+                                ${t1Won ? `<span class="text-[9px] font-bold ${tagColor} px-1.5 py-0.5 rounded uppercase">${tagText}</span>` : ''}
                             </div>
-                            <div onclick="advanceTeam('${roundKey}', ${index}, 2)" class="flex items-center justify-between p-2 rounded-xl border ${t2Class} cursor-pointer transition-all duration-300">
+                            <div ${click2} class="flex items-center justify-between p-2 rounded-xl border ${t2Class} ${cursor} transition-all duration-300">
                                 <div class="flex items-center gap-2 truncate"><span class="shrink-0">${t2 ? flagImg(t2, 'w-6') : '<span class="text-base">❓</span>'}</span><span class="text-xs truncate">${t2 ? t2.name : 'Chờ cặp đấu'}</span></div>
-                                ${t2Won ? '<span class="text-[9px] text-gold font-bold bg-gold/20 px-1.5 py-0.5 rounded uppercase">Thắng</span>' : ''}
+                                ${t2Won ? `<span class="text-[9px] font-bold ${tagColor} px-1.5 py-0.5 rounded uppercase">${tagText}</span>` : ''}
                             </div>
                         </div>
                     </div>`;
@@ -828,7 +946,7 @@
         function reapplyKnockoutWinners(ko) {
             if (!ko) return;
             const setByCode = (match, code) => {
-                if (!code) return;
+                if (!code || match.official) return;   // không ghi đè kết quả chính thức
                 if (match.team1 && match.team1.code === code) match.winner = match.team1;
                 else if (match.team2 && match.team2.code === code) match.winner = match.team2;
             };
@@ -852,12 +970,17 @@
         async function fetchLiveData(silent = false) {
             if (!silent) toast("Đang lấy dữ liệu live...");
             try {
-                const res = await fetch(LIVE_GROUPS_URL, { cache: "no-store" });
-                if (!res.ok) throw new Error("HTTP " + res.status);
-                const json = await res.json();
+                const [gRes, mRes] = await Promise.allSettled([
+                    fetch(LIVE_GROUPS_URL, { cache: "no-store" }),
+                    fetch(LIVE_GAMES_URL, { cache: "no-store" })
+                ]);
+
+                // ---- 1) Vòng bảng (bắt buộc) ----
+                if (gRes.status !== "fulfilled" || !gRes.value.ok) throw new Error("Không tải được bảng xếp hạng");
+                const json = await gRes.value.json();
                 if (!json.groups || !Array.isArray(json.groups)) throw new Error("Sai cấu trúc dữ liệu");
 
-                let mapped = 0, skipped = 0;
+                let skipped = 0;
                 const next = {};
                 json.groups.forEach(g => {
                     const gId = g.name;
@@ -866,7 +989,6 @@
                         const code = TEAM_ID_TO_CODE[String(t.team_id)];
                         const base = TEAMS_DATA[code];
                         if (!base) { skipped++; return null; }
-                        mapped++;
                         return {
                             code, name: base.name, flag: base.flag, rating: base.rating,
                             w: parseInt(t.w) || 0, d: parseInt(t.d) || 0, l: parseInt(t.l) || 0,
@@ -874,15 +996,13 @@
                         };
                     }).filter(Boolean);
                 });
-
-                // Chỉ áp dụng nếu đủ 12 bảng x 4 đội (tránh ghi đè bằng dữ liệu lỗi)
                 const complete = GROUP_IDS.every(id => next[id] && next[id].length === 4);
-                if (!complete || skipped > 0) throw new Error("Dữ liệu thiếu đội (mapped " + mapped + ")");
+                if (!complete || skipped > 0) throw new Error("Dữ liệu bảng thiếu đội");
 
                 groupsState = next;
-                dataIsLive = true;                  // tôn trọng thứ tự xếp hạng của API
+                dataIsLive = true;
 
-                // Giữ lại dự đoán knockout người dùng đã bấm trước đó
+                // Giữ dự đoán knockout của user trước khi dựng lại
                 const savedKO = {
                     r32: knockoutState.r32.map(m => m.winner ? m.winner.code : null),
                     r16: knockoutState.r16.map(m => m.winner ? m.winner.code : null),
@@ -893,15 +1013,28 @@
                 };
 
                 renderGroups();
-                calculateAdvancingTeams();
+                calculateAdvancingTeams();          // dựng nhánh tạm từ vòng bảng (fallback)
                 reapplyKnockoutWinners(savedKO);
+
+                // ---- 2) Nhánh knockout chính thức từ /get/games (ghi đè fallback) ----
+                let koLive = false;
+                if (mRes.status === "fulfilled" && mRes.value.ok) {
+                    try {
+                        const gj = await mRes.value.json();
+                        if (gj.games && Array.isArray(gj.games)) koLive = buildKnockoutFromApi(gj.games);
+                    } catch (e) { console.warn("Games parse failed:", e); }
+                }
+
                 updateAnalysis();
                 saveState();
 
                 const now = new Date().toLocaleTimeString('vi-VN');
                 document.getElementById("mode-indicator").innerText = "Live";
                 document.getElementById("mode-indicator").className = "font-bold text-accentgreen text-sm";
-                if (!silent) { toast("✅ Đã cập nhật live lúc " + now); addCommentary("📡 Đã đồng bộ kết quả vòng bảng live lúc " + now + "."); }
+                if (!silent) {
+                    toast(koLive ? ("✅ Đã cập nhật vòng bảng + nhánh KO chính thức lúc " + now)
+                                 : ("✅ Đã cập nhật vòng bảng lúc " + now + " (KO chưa có dữ liệu chính thức)"));
+                }
             } catch (e) {
                 if (!silent) toast("⚠️ Không lấy được dữ liệu live (" + e.message + "). Đang giữ dữ liệu hiện tại — có thể nhập tay.");
                 console.warn("Live fetch failed:", e);
